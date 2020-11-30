@@ -1,4 +1,6 @@
 module Chapter12 where
+import Prelude
+import Control.Monad
 
 main = putStrLn "Chapter 12"
 
@@ -27,13 +29,12 @@ instance Functor' [] where
 -- designed my own maybe monad with different name to not collide with prelude
 data Maybe' a = None | Some a deriving(Eq,Show)
 
-instance Functor Maybe' where 
+instance Functor Maybe' where
     fmap _ None = None
     fmap g (Some x) = Some (g x)
 
 -----------------------------------------------
-data Tree a = Leaf a | Node (Tree a) (Tree a)
-                deriving Show 
+data Tree a = Leaf a | Node (Tree a) (Tree a) deriving (Show)
 
 instance Functor Tree where
     fmap g (Leaf x) = Leaf (g x)
@@ -44,14 +45,32 @@ instance Functor Tree where
 -- fmap g (Node l r) = Node (fmap g l) (fmap g r)
 
 -----------------------------------------------
---instance Applicative Maybe where
---    -- pure :: a -> Maybe a
---    pure = just
---    
+instance Applicative Maybe' where
+pure :: a -> Maybe' a
+pure = Some
+(<*>):: f (a -> b) -> f a -> f b
+None <*> _  = None
+(Some g) <*> mx = fmap g mx 
+--
 --    -- (<*>) :: Maybe (a -> b ) -> Maybe a -> Maybe b
 --    Nothing <*> _ = Nothing
 --    (Just g) <*> mx = fmap g mx
 -----------------------------------------------
 
+--demo1 = pure (+1) <*> [1,2,3]
+--demo1b = (+1) <$> [1,2,3]
+
+--demo2 = (+) <$> [1] <*> [2]
+
+--  prods [1,2] [3,4] results in  [3,4,6,8]
+--prods :: [Int] -> [Int] -> [Int]
+--prods xs ys = [x*y | x <-xs , y <- ys]
+
+-- alternative impl of prods using applicatives
+--prodsApplicative :: [Int] -> [Int] -> [Int]
+--prodsApplicative x y = (*) <$> x <*> y
+--
 -- page 164 Monads
-data Expr = Val Int | Dive Expr Expr
+-- data Expr = Val Int | Dive Expr Expr
+
+
