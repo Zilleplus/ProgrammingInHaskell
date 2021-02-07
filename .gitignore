@@ -2,3 +2,4 @@
 ProgrammingInHaskell.cabal
 *~
 .ionide
+.lock
