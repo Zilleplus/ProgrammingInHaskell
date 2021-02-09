@@ -75,4 +75,31 @@ module Chapter12 where
     --prodsApplicative x y = (*) <$> x <*> y
     --
     -- page 164 Monads
-    -- data Expr = Val Int | Dive Expr Expr
+    data Expr = Val Int | Div Expr Expr
+
+    eval :: Expr -> Int
+    eval (Val n) = n
+    eval (Div x y ) = eval x `div` eval y
+
+    safediv :: Int -> Int -> Maybe Int
+    safediv _ 0 = Nothing
+    safediv x y = Just $ x `div` y
+
+    -- Doesn't work cuz safediv should have (int->int->int) to
+    -- work with applicatives.
+    -- eval2 :: Expr -> Maybe Int
+    -- eval2 (Val n) = pure n
+    -- eval2 (Div x y) = safediv <$> eval2 x <*> eval2 y
+
+
+    -- This is already defined in prelude
+    -- (>>=) :: Maybe a -> (a-> Maybe b) -> Maybe b
+    -- mx (>>=) f = case mx of 
+    --              Nothing -> Nothing
+    --              Just x -> f x
+
+    eval3 :: Expr -> Maybe Int
+    eval3 (Val n) = Just n
+    eval3 (Div x y) = (eval3 x) >>= \n ->
+        (eval3 y) >>= \m ->
+        safediv n m
