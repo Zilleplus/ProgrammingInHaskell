@@ -3,7 +3,7 @@ module Chapter12Monads where
     import Control.Monad
     import Data.Char
 
-    main = putStrLn "Chapter 12"
+    main = putStrLn "Chapter 12 monads"
 
     type State = Int
 
