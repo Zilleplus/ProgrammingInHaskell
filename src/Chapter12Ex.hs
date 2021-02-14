@@ -30,11 +30,11 @@ module Chapter12Ex where
     -- you might recognise pure and <*> for this type as 
     -- being the well known K and S combinators.
     class Applicative' f where
-        pure :: a -> f a
+        pure_ :: a -> f a
         app :: f (a ->b) -> f a -> f b
 
     instance Applicative' ((->) a ) where
-        pure x = const x -- same as \n -> x
+        pure_ x = const x -- same as \n -> x
         app g f = \x -> (g x) (f x) -- x is of type b
 
     -- 4 There may be more than one way to make a prameterised type into an
@@ -68,15 +68,38 @@ module Chapter12Ex where
         return_ a = const a
 
     -- 7. Given the following type of expression:
-    data Expr a  = Var a | Val Int | ADD (Expr a) (Expr a) deriving Show
+    data Expr a  
+      = Var a 
+      | Val Int 
+      | ADD (Expr a) (Expr a) 
+      deriving Show
     
     instance Functor Expr where
+        -- fmap (a -> b) -> m a -> m b
         fmap f (Var a) = Var $ f a
         fmap _ (Val i) = Val i
         fmap f (ADD l r) = ADD (fmap f l) (fmap f r)
 
     instance Applicative Expr where
         -- a -> f a
-        pure x = Var x
+        pure = Var
         -- m (a -> b) -> m a -> m b
-        f <*> x = 
+        _ <*> Val i = Val i
+        Var f <*> x  = fmap f x -- works on all :-)
+        (ADD f g) <*> (ADD l r) = ADD (f <*> l) (g <*> r)
+        (ADD f g ) <*> Var x = ADD (f <*> pure x) (g <*> pure x)
+
+    instance Monad Expr where
+        -- >>= :: m a -> (a -> m b) -> m b
+        (>>=) (Var x) f = f x
+        (>>=) (Val x) _ = Val x
+        (>>=) (ADD l r) f = ADD (l >>= f) (r >>= f)
+
+        return = pure
+
+    test = ADD (Var 1) (Var 2)
+
+    test_lambda :: Int -> (Expr Double)
+    test_lambda n = Var (2.5)
+
+    out_test = test >>= const Var 2.5
