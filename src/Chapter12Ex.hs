@@ -92,7 +92,7 @@ module Chapter12Ex where
     instance Monad Expr where
         -- >>= :: m a -> (a -> m b) -> m b
         (>>=) (Var x) f = f x
-        (>>=) (Val x) _ = Val x
+        (>>=) (Val x) _ = Val x -- ignore f, as val is a constant, not a variable
         (>>=) (ADD l r) f = ADD (l >>= f) (r >>= f)
 
         return = pure
